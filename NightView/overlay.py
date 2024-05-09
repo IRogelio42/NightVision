@@ -10,7 +10,6 @@ class Overlay(QWidget):
     def __init__(self, computer_vision) -> None:
         super(Overlay, self).__init__(parent=None)
         self.cv = computer_vision
-        self.playerType = ["Killer", "Survivor"]
         self.aspectRatio = "2560x1440"
         self.setWindowTitle("overlay")
 
@@ -87,57 +86,38 @@ class Overlay(QWidget):
         )
 
         # Setting rectangles for regions/Detectables
-        if config["player"]:
-            player = config["player"]
-            for region in config["regions"][player]:
-                scaled_rect = config["regions"][region]["2560x1440"]  # Get Aspect Ratio, Created in CV(?)
-                tempwidth = scaled_rect["w"] + 2
-                tempheight = scaled_rect["h"] + 2
+        for region in config["regions"]:
+            scaled_rect = config["regions"][region]["2560x1440"]  # Get Aspect Ratio, Created in CV(?)
+            tempwidth = scaled_rect["w"] + 2
+            tempheight = scaled_rect["h"] + 2
 
-                if type(region) is list:
-                    for i in range(0, 4):
-                        self.regions[region][str(i)]["Rect"].setGeometry(
-                            scaled_rect[str(i)]["x"] - 1,
-                            scaled_rect[str(i)]["y"] - 1,
-                            tempwidth,
-                            tempheight
-                        )
-                        self.regions[region][str(i)]["Label"].setGeometry(
-                            scaled_rect[str(i)]["x"],
-                            scaled_rect[str(i)]["y"],
-                            100,
-                            20
-                        )
-                else:
-                    self.regions[region]["Rect"].setGeometry(
-                        scaled_rect[player]["x"] - 1,
-                        scaled_rect[player]["y"] - 1,
+            if type(region) is list:
+                for i in range(0, 4):
+                    self.regions[region][str(i)]["Rect"].setGeometry(
+                        scaled_rect[str(i)]["x"] - 1,
+                        scaled_rect[str(i)]["y"] - 1,
                         tempwidth,
                         tempheight
                     )
-                    self.regions[region]["Label"].setGeometry(
-                        scaled_rect[playerType][self.aspectRatio]["x"],
-                        scaled_rect[playerType][self.aspectRatio]["y"],
-                        200,
-                        100
+                    self.regions[region][str(i)]["Label"].setGeometry(
+                        scaled_rect[str(i)]["x"],
+                        scaled_rect[str(i)]["y"],
+                        100,
+                        20
                     )
-        else:
-            region = "player_type"
-            scaled_rect = config[region]["2560x1440"]  # Get Aspect Ratio, Created in CV(?)
-            tempwidth = scaled_rect["w"] + 2
-            tempheight = scaled_rect["h"] + 2
-            self.regions[region]["Rect"].setGeometry(
-                scaled_rect["x"] - 1,
-                scaled_rect["y"] - 1,
-                tempwidth,
-                tempheight
-            )
-            self.regions[region]["Label"].setGeometry(
-                scaled_rect["x"],
-                scaled_rect["y"],
-                200,
-                100
-            )
+            else:
+                self.regions[region]["Rect"].setGeometry(
+                    scaled_rect["x"] - 1,
+                    scaled_rect["y"] - 1,
+                    tempwidth,
+                    tempheight
+                )
+                self.regions[region]["Label"].setGeometry(
+                    scaled_rect["x"],
+                    scaled_rect["y"],
+                    200,
+                    100
+                )
 
     def update(self):
         self.set_active(True)
@@ -152,11 +132,12 @@ class Overlay(QWidget):
             for region in self.regions:
                 if type(region) is list:
                     for i in range(0, 4):
-                        self.regions[region]["Rect"].hide()
-                        self.regions[region]["Label"].setText("")
+                        self.regions[region][str(i)]["Rect"].hide()
+                        self.regions[region][str(i)]["Label"].setText("")
                 else:
-                    self.regions[region][str(i)]["Rect"].hide()
-                    self.regions[region][str(i)]["Label"].setText("")
+                    self.regions[region]["Rect"].hide()
+                    self.regions[region]["Label"].setText("")
+
 
         else:
             self.corners.show()

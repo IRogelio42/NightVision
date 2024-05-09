@@ -73,11 +73,7 @@ class ComputerVision():
         bottom = 0
         right = 0
         regionNames = config["regions"]
-        if not config["player"]:
-            regionNames = regionNames[:1]
-        else:
-            regionNames = regionNames[1:]
-        # Find rect that encompasses all regions
+
         for region in regionNames:
             if type(region) is list:
                 rect = config["regions"][region]["2560x1440"]
@@ -88,10 +84,10 @@ class ComputerVision():
                     right = max(right, rect[str(i)]["x"] + rect["w"])
             else:
                 rect = config["regions"][region]["2560x1440"]
-                top = min(top, rect["Killer"]["y"])
-                bottom = max(bottom, rect["Killer"]["y"] + rect["h"])
-                left = min(left, rect["Killer"]["x"])
-                right = max(right, rect["Killer"]["x"] + rect["w"])
+                top = min(top, rect["y"])
+                bottom = max(bottom, rect["y"] + rect["h"])
+                left = min(left, rect["x"])
+                right = max(right, rect["x"] + rect["w"])
 
         self.frame_offset = (top, left)
 

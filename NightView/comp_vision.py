@@ -13,6 +13,14 @@ class ComputerVision():
         self.min_update_period = 0.1
         self.detection_ping = 0
 
+        self.prompt_detectables = []
+        self.filters = {
+            "KillcamOrPOTG": self.sobel_operation,
+            "Elimination": self.popup_filter,
+            "Assist": self.popup_filter,
+            "Saved": self.popup_filter,
+        }
+
         self.debug_image = None
         self.detection_rect = {}
         self.resolution_scaling_factor = 1

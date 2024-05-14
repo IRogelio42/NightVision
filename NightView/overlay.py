@@ -127,8 +127,6 @@ class Overlay(QWidget):
     def set_active(self, value):
         if value is False:
             self.corners.hide()
-            # self.points_label.hide()
-            # self.detection_delay_label.hide()
             for region in self.regions:
                 if type(region) is list:
                     for i in range(0, 4):
@@ -137,12 +135,8 @@ class Overlay(QWidget):
                 else:
                     self.regions[region]["Rect"].hide()
                     self.regions[region]["Label"].setText("")
-
-
         else:
             self.corners.show()
-            # self.points_label.show()
-            # self.detection_delay_label.show()
 
     def update_regions(self):
         for region in self.regions:

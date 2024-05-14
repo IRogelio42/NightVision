@@ -98,3 +98,18 @@
                     "y" : 1028,
                 }
 }
+"detectable" : {
+        # Survivor detectables apply to both,
+        "Injured": {"Filename": "injured.png", "Threshold": .8, },
+        "Down": {"Filename": "down.png", "Threshold": .8, },
+        "Dead": {"Filename": "dead.png", "Threshold": .8, },
+        "Mori": {"Filename": "mori.png", "Threshold": .8, },
+        "Hook_Stage0": {"Filename": "HS0.png", "Threshold": .8, },
+        "Hook_Stage1": {"Filename": "HS1.png", "Threshold": .8, },
+        "Hook_Stage2": {"Filename": "HS2.png", "Threshold": .8, },
+        #Need to decide how to track stages, whether hold all images as above
+        #or hold single image and save previous image to identify transition as below
+        "Killer_Hooks": {"Filename": "KHS.png", "Threshold": .8,},
+        # Similar problem for generator detection
+        "Generator_Count": {"Filename": "Generators.png", "Threshold": .8},
+}

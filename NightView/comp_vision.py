@@ -14,11 +14,10 @@ class ComputerVision():
         self.detection_ping = 0
 
         self.prompt_detectables = ["player_type"]
-        self.filters = {
-        }
-        for d in self.prompt_detectables:
-            self.filters[d] = self.prompt_filter
-
+        self.filters = {}
+        #for d in self.prompt_detectables:
+            #self.filters[d] = self.prompt_filter
+        
         self.debug_image = None
         self.detection_rect = {}
         self.resolution_scaling_factor = 1
@@ -64,12 +63,12 @@ class ComputerVision():
 
         self.resolution_changed = self.detect_resolution()
 
-        # for r in config["regions"]:
-        #    config["regions"][r]["Matches"] = []
-        # for d in config["detectables"]:
-        #    config["detectables"][d]["Count"] = 0
+        for r in config["regions"]:
+           config["regions"][r]["Matches"] = []
+        for d in config["detectables"]:
+           config["detectables"][d]["Count"] = 0
 
-        # self.update_detections()
+        self.update_detections()
 
         # frame_delta_points = 0
         # for d in config["detectables"]:
@@ -88,6 +87,24 @@ class ComputerVision():
         self.detection_ping = (1 - a) * self.detection_ping + a * (t1 - t0)
         return True
 
+    def update_detections(self):
+        self.match_detectables_on_region("Prompt", self.prompt_detectables)
+
+        lower_regions = [r for r in config["regions"]]
+        self.grab_frame_cropped_to_regions(lower_regions)
+
+        # Hero Specific
+        for item in ["Give Harmony Orb", "Give Discord Orb", "Give Mercy Boost", "Give Mercy Heal"]:
+            self.match_detectables_on_region(item, [item])
+
+        # Receive Heals
+        healDetectables = ["Receive Zen Heal", "Receive Mercy Boost", "Receive Mercy Heal"]
+        self.match_detectables_on_region("Receive Heal", healDetectables)
+
+        # Status
+        statusDetectables = ["Receive Hack", "Receive Discord Orb", "Receive Anti-Heal", "Receive Heal Boost", "Receive Immortality"]
+        self.match_detectables_on_region("Receive Status Effect", statusDetectables)
+    
     def grab_current_frame(self):
         top = self.detection_rect["height"]
         left = self.detection_rect["width"]
@@ -118,13 +135,7 @@ class ComputerVision():
         right += self.detection_rect["left"]
 
         with mss.mss() as sct:
-            region = (left, top, right, bottom)  # (config["regions"]["Survivors"]["2560x1440"]["0"]["x"],
-            # config["regions"]["Survivors"]["2560x1440"]["0"]["y"],
-            # config["regions"]["Survivors"]["2560x1440"]["0"]["x"]
-            #  + config["regions"]["Survivors"]["2560x1440"]["w"],
-            # config["regions"]["Survivors"]["2560x1440"]["0"]["y"]
-            #  + config["regions"]["Survivors"]["2560x1440"]["h"])
-            # self.frame = np.array(sct.grab(sct.monitors[1]))[:, :, :]
+            region = (left, top, right, bottom) 
             try:
                 self.frame = np.array(sct.grab(region))[:, :, :]
             except:
@@ -132,8 +143,7 @@ class ComputerVision():
 
         return self.frame, region[2] - region[0], region[3] - region[1]
 
-        # Scale Detection Images to Appropriate Resolution necessary
-
+    # Scale Detection Images to Appropriate Resolution necessary
     def load_and_scale_template(self, item):
         path = os.path.join(os.path.abspath("."), "templates", item["filename"])
         # cv.imread(path) -> returns image at path location as variable

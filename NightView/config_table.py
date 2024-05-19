@@ -38,7 +38,7 @@ config = {
             },
         },
     },
-    "detectable": {
+    "detectables": {
         # similar to regions, replace upon state change, save rest on txt file
         # need to identify manners of detection
         "player_typeA": {"Filename": "player_typeA.png", "Threshold": .75},

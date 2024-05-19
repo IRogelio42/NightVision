@@ -13,13 +13,11 @@ class ComputerVision():
         self.min_update_period = 0.1
         self.detection_ping = 0
 
-        self.prompt_detectables = []
+        self.prompt_detectables = ["player_type"]
         self.filters = {
-            "KillcamOrPOTG": self.sobel_operation,
-            "Elimination": self.popup_filter,
-            "Assist": self.popup_filter,
-            "Saved": self.popup_filter,
         }
+        for d in self.prompt_detectables:
+            self.filters[d] = self.prompt_filter
 
         self.debug_image = None
         self.detection_rect = {}
@@ -33,6 +31,7 @@ class ComputerVision():
         with mss.mss() as sct:
             monitor_rect = sct.monitors[1]  # Use the 1st monitor
 
+        # Following If is a default of 2560x1440, no rescaling/ refitting done 5/19
         if self.detection_rect == monitor_rect:
             return False
         else:
@@ -41,6 +40,20 @@ class ComputerVision():
             self.resolution_scaling_factor = scale
             # self.detectables_setup()
             return True
+
+    def dectectables(self):
+        for region in config["region"]:
+            i = config["0"]
+            resolution = str(aspect_ratios[i]["sample_w"]) + "x" + str(aspect_ratios[i]["sample_h"])
+            rect = config["regions"][region].get(resolution)  # Get method built into that data type,
+
+            config["regions"][region]["ScaledRect"] = self.scale_rect(rect)
+            config["regions"][region]["Matches"] = []  # Pings a Match
+
+            for item in config["detectables"]:
+                self.load_and_scale_template(config["detectables"][item])  # Scale template image
+                if item in self.filters:
+                    config["detectables"][item]["template"] = self.filters[item](config["detectables"][item]["template"]) 
 
     def update(self):
         t0 = time.time()
@@ -118,3 +131,19 @@ class ComputerVision():
                 print("Fucked Up!")
 
         return self.frame, region[2] - region[0], region[3] - region[1]
+
+        # Scale Detection Images to Appropriate Resolution necessary
+
+    def load_and_scale_template(self, item):
+        path = os.path.join(os.path.abspath("."), "templates", item["filename"])
+        # cv.imread(path) -> returns image at path location as variable
+        base_template = cv.imread(path)
+
+        template_scaling = aspect_ratios[config["aspect_ratio_index"]].get("template_scaling", 1)
+        height = int(base_template.shape[0] * self.resolution_scaling_factor * template_scaling)
+        width = int(base_template.shape[1] * self.resolution_scaling_factor * template_scaling)
+        # resize (image, (w, h))
+        scaled = cv.resize(base_template.copy(), (width, height))
+
+        item["original_image"] = base_template
+        item["template"] = scaled

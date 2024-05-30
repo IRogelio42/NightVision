@@ -93,7 +93,7 @@ class MainTab(QWidget):
         self.setLayout(outer_layout)
 
     def update_current_frame(self):
-        frame, width, height = self.computer_vision.grab_current_frame()  # np array
+        frame, width, height = self.computer_vision.grab_AOI("all")  # np array
         qimage = QImage(frame, width, height,
                         QImage.Format_RGB32)
         current_frame = QPixmap(qimage)

@@ -37,12 +37,12 @@ class ComputerVision():
             print("Setting detection rect: " + str(monitor_rect))
             self.detection_rect = monitor_rect
             self.resolution_scaling_factor = scale
-            # self.detectables_setup()
+            self.dectectables()
             return True
 
     def dectectables(self):
-        for region in config["region"]:
-            i = config["0"]
+        for region in config["regions"]:
+            i = 0
             resolution = str(aspect_ratios[i]["sample_w"]) + "x" + str(aspect_ratios[i]["sample_h"])
             rect = config["regions"][region].get(resolution)  # Get method built into that data type,
 
@@ -88,29 +88,22 @@ class ComputerVision():
         return True
 
     def update_detections(self):
-        self.match_detectables_on_region("Prompt", self.prompt_detectables)
+        #match_detectables_on_region(regiontype, detectableKeys(what to look for))
 
-        lower_regions = [r for r in config["regions"]]
-        self.grab_frame_cropped_to_regions(lower_regions)
+        regions = [r for r in config["regions"]]
+        self.grab_AOI(regions)
 
-        # Hero Specific
-        for item in ["Give Harmony Orb", "Give Discord Orb", "Give Mercy Boost", "Give Mercy Heal"]:
-            self.match_detectables_on_region(item, [item])
-
-        # Receive Heals
-        healDetectables = ["Receive Zen Heal", "Receive Mercy Boost", "Receive Mercy Heal"]
-        self.match_detectables_on_region("Receive Heal", healDetectables)
-
-        # Status
-        statusDetectables = ["Receive Hack", "Receive Discord Orb", "Receive Anti-Heal", "Receive Heal Boost", "Receive Immortality"]
-        self.match_detectables_on_region("Receive Status Effect", statusDetectables)
+        if "player_type" == regions[0] and len(regions) == 1: # State 0
+            self.match_detectables_on_region(regions[0], config["detectables"])
+            return
     
-    def grab_current_frame(self):
+    def grab_AOI(self, regionNames):
         top = self.detection_rect["height"]
         left = self.detection_rect["width"]
         bottom = 0
         right = 0
-        regionNames = config["regions"]
+        
+        if regionNames == "all" : regionNames = config["regions"]
 
         for region in regionNames:
             if type(region) is list:
@@ -142,6 +135,73 @@ class ComputerVision():
                 print("Fucked Up!")
 
         return self.frame, region[2] - region[0], region[3] - region[1]
+
+    def match_detectables_on_region(self, regionKey, detectableKeys):
+        region_rect = config["regions"][regionKey]["2560x1440"]
+        crop = self.get_cropped_frame_copy(region_rect)
+
+        filtered_crops = {}
+        for d in detectableKeys:
+            filt = self.filters.get(d)
+            if filt is not None and filt not in filtered_crops:
+                filtered_crops[filt] = filt(crop.copy())
+
+        for d in detectableKeys:
+            if d in self.filters:
+                selected_crop = filtered_crops[self.filters[d]]
+            else:
+                selected_crop = crop
+
+            max_matches = config["regions"][regionKey].get("MaxMatches", 1)
+            if len(config["regions"][regionKey]["Matches"]) >= max_matches:
+                break
+
+            if d in self.prompt_detectables:
+                # To save performance and avoid false positives: crop the selected crop to the center, to fit the template's width
+                template_w = config["detectables"][d]["template"].shape[1]
+                crop_w = selected_crop.shape[1]
+                left = int((crop_w - template_w) / 2)
+                right = left + template_w
+                left = max(left - 3, 0)
+                right = min(right + 3, crop_w)
+                selected_crop = selected_crop[:, left:right, :]
+
+            selected_crop = cv.cvtColor(selected_crop, cv.COLOR_BGR2GRAY)
+            config["detectables"][d]["template"] = cv.cvtColor(config["detectables"][d]["template"], cv.COLOR_BGR2GRAY)
+            r_shape = selected_crop.shape
+            t_shape = config["detectables"][d]["template"].shape
+            
+            if t_shape[0] > r_shape[0] or t_shape[1] > r_shape[1]:
+                print("Template {0}({1}) is bigger than region {2}".format(d, t_shape, r_shape))
+                return
+
+            match_max_value = self.match_template(selected_crop, config["detectables"][d]["template"])
+            config["detectables"][d]["template"] = cv.cvtColor(config["detectables"][d]["template"], cv.COLOR_GRAY2BGR)
+            print(match_max_value)
+            if match_max_value > config["detectables"][d]["threshold"]:
+                config["detectables"][d]["Count"] += 1
+                config["regions"][regionKey]["Matches"].append(d)
+    
+    def match_template(self, frame, template):
+        result = cv.matchTemplate(frame, template, cv.TM_CCOEFF_NORMED)
+        minVal, maxVal, minLoc, maxLoc = cv.minMaxLoc(result)
+        return maxVal
+    
+    def scale_rect(self, rect):
+        scaled_rect = {
+            "x": int (rect["x"] * self.resolution_scaling_factor),
+            "y": int (rect["y"] * self.resolution_scaling_factor),
+            "w": int (rect["w"] * self.resolution_scaling_factor),
+            "h": int (rect["h"] * self.resolution_scaling_factor)
+        }
+        return scaled_rect
+
+    def get_cropped_frame_copy(self, rect):
+        top = rect["y"] - self.frame_offset[0]
+        bottom = rect["y"] + rect["h"] - self.frame_offset[0]
+        left = rect["x"] - self.frame_offset[1]
+        right = rect["x"] + rect["w"] - self.frame_offset[1]
+        return self.frame[top:bottom, left:right].copy()
 
     # Scale Detection Images to Appropriate Resolution necessary
     def load_and_scale_template(self, item):

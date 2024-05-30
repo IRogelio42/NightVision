@@ -5,8 +5,8 @@ import os
 aspect_ratios = {
     0 : {
         "id" : "16:9",
-        "sample_w": 1920,
-        "sample_h": 1080,
+        "sample_w": 2560,
+        "sample_h": 1440,
     },
     1: {
         "id" : "21:9",
@@ -41,8 +41,8 @@ config = {
     "detectables": {
         # similar to regions, replace upon state change, save rest on txt file
         # need to identify manners of detection
-        "player_typeA": {"Filename": "player_typeA.png", "Threshold": .75},
-        "player_typeB": {"Filename": "player_typeB.png", "Threshold": .75},
+        "player_typeA": {"filename": "player_typeA.png", "threshold": .76},
+        "player_typeB": {"filename": "player_typeB.png", "threshold": .76},
     }
 }
 

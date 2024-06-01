@@ -7,6 +7,7 @@ from PyQt5.QtGui import QImage, QPixmap, QPalette
 import numpy as np
 import cv2 as cv
 
+from config_table import exchange_from_file
 from comp_vision import ComputerVision
 from overlay import Overlay
 
@@ -118,5 +119,6 @@ app.exec()
 
 try:
     input("Press any key to exit...")
+    exchange_from_file()
 except:
     pass

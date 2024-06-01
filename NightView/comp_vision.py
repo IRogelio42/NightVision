@@ -4,7 +4,7 @@ import mss
 import numpy as np
 import cv2 as cv
 
-from config_table import config, aspect_ratios
+from config_table import config, aspect_ratios, exchange_from_file
 
 
 class ComputerVision():
@@ -49,10 +49,10 @@ class ComputerVision():
             config["regions"][region]["ScaledRect"] = self.scale_rect(rect)
             config["regions"][region]["Matches"] = []  # Pings a Match
 
-            for item in config["detectables"]:
-                self.load_and_scale_template(config["detectables"][item])  # Scale template image
+            for item in config["detectables"][region]:
+                self.load_and_scale_template(config["detectables"][region][item])  # Scale template image
                 if item in self.filters:
-                    config["detectables"][item]["template"] = self.filters[item](config["detectables"][item]["template"]) 
+                    config["detectables"][region][item]["template"] = self.filters[item](config["detectables"][region][item]["template"])
 
     def update(self):
         t0 = time.time()
@@ -65,10 +65,23 @@ class ComputerVision():
 
         for r in config["regions"]:
            config["regions"][r]["Matches"] = []
-        for d in config["detectables"]:
-           config["detectables"][d]["Count"] = 0
+           for d in config["detectables"][r]:
+               config["detectables"][r][d]["Count"] = 0
 
         self.update_detections()
+
+        if len(config["regions"]) == 1:
+            for d in config["detectables"][r]:
+                if config["detectables"][r][d]["Count"]:
+                    if config["regions"][r]["Matches"][0] == "player_typeA":
+                        var="Survivor"
+                    else:
+                        var="Killer"
+                    exchange_from_file(var)
+
+        #for r in config["regions"]:
+        #    for d in config["detectables"][r]:
+        #        if config["detectables"][r][d]["Count"]:
 
         # frame_delta_points = 0
         # for d in config["detectables"]:
@@ -94,7 +107,7 @@ class ComputerVision():
         self.grab_AOI(regions)
 
         if "player_type" == regions[0] and len(regions) == 1: # State 0
-            self.match_detectables_on_region(regions[0], config["detectables"])
+            self.match_detectables_on_region(regions[0], config["detectables"][regions[0]])
             return
     
     def grab_AOI(self, regionNames):
@@ -106,15 +119,16 @@ class ComputerVision():
         if regionNames == "all" : regionNames = config["regions"]
 
         for region in regionNames:
-            if type(region) is list:
-                rect = config["regions"][region]["2560x1440"]
+            rect = config["regions"][region]["2560x1440"]
+            if type(rect) is list:
                 for i in range(0, 4):
                     top = min(top, rect[str(i)]["y"])
                     bottom = max(bottom, rect[str(i)]["y"] + rect["h"])
                     left = min(left, rect[str(i)]["x"])
                     right = max(right, rect[str(i)]["x"] + rect["w"])
             else:
-                rect = config["regions"][region]["2560x1440"]
+                print(region)
+                print(rect)
                 top = min(top, rect["y"])
                 bottom = max(bottom, rect["y"] + rect["h"])
                 left = min(left, rect["x"])
@@ -143,10 +157,12 @@ class ComputerVision():
         filtered_crops = {}
         for d in detectableKeys:
             filt = self.filters.get(d)
+
             if filt is not None and filt not in filtered_crops:
                 filtered_crops[filt] = filt(crop.copy())
 
         for d in detectableKeys:
+
             if d in self.filters:
                 selected_crop = filtered_crops[self.filters[d]]
             else:
@@ -158,7 +174,7 @@ class ComputerVision():
 
             if d in self.prompt_detectables:
                 # To save performance and avoid false positives: crop the selected crop to the center, to fit the template's width
-                template_w = config["detectables"][d]["template"].shape[1]
+                template_w = config["detectables"][regionKey][d]["template"].shape[1]
                 crop_w = selected_crop.shape[1]
                 left = int((crop_w - template_w) / 2)
                 right = left + template_w
@@ -167,19 +183,19 @@ class ComputerVision():
                 selected_crop = selected_crop[:, left:right, :]
 
             selected_crop = cv.cvtColor(selected_crop, cv.COLOR_BGR2GRAY)
-            config["detectables"][d]["template"] = cv.cvtColor(config["detectables"][d]["template"], cv.COLOR_BGR2GRAY)
+            config["detectables"][regionKey][d]["template"] = cv.cvtColor(config["detectables"][regionKey][d]["template"], cv.COLOR_BGR2GRAY)
             r_shape = selected_crop.shape
-            t_shape = config["detectables"][d]["template"].shape
+            t_shape = config["detectables"][regionKey][d]["template"].shape
             
             if t_shape[0] > r_shape[0] or t_shape[1] > r_shape[1]:
                 print("Template {0}({1}) is bigger than region {2}".format(d, t_shape, r_shape))
                 return
 
-            match_max_value = self.match_template(selected_crop, config["detectables"][d]["template"])
-            config["detectables"][d]["template"] = cv.cvtColor(config["detectables"][d]["template"], cv.COLOR_GRAY2BGR)
-            print(match_max_value)
-            if match_max_value > config["detectables"][d]["threshold"]:
-                config["detectables"][d]["Count"] += 1
+            match_max_value = self.match_template(selected_crop, config["detectables"][regionKey][d]["template"])
+            config["detectables"][regionKey][d]["template"] = cv.cvtColor(config["detectables"][regionKey][d]["template"], cv.COLOR_GRAY2BGR)
+
+            if match_max_value > config["detectables"][regionKey][d]["threshold"]:
+                config["detectables"][regionKey][d]["Count"] += 1
                 config["regions"][regionKey]["Matches"].append(d)
     
     def match_template(self, frame, template):

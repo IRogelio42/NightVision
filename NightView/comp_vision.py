@@ -80,6 +80,7 @@ class ComputerVision():
                     else:
                         var="Killer"
                     exchange_from_file(var)
+                    print(var + " identified.")
                     self.regions_changed = True
 
         #for r in config["regions"]:
@@ -123,7 +124,7 @@ class ComputerVision():
 
         for region in regionNames:
             rect = config["regions"][region]["2560x1440"]
-
+            #print(region)
             if '0' in rect:
                 for i in range(0, 4):
                     top = min(top, rect[str(i)]["y"])
@@ -133,8 +134,6 @@ class ComputerVision():
                     if region == "Survivors":
                         break
             else:
-                print(region)
-                print(rect)
                 top = min(top, rect["y"])
                 bottom = max(bottom, rect["y"] + rect["h"])
                 left = min(left, rect["x"])

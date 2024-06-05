@@ -74,10 +74,10 @@ replacement = {
             },
             "Hook_Stages" : {
                 "2560x1440" : {
-                    "x" : 207,
-                    "y" : 40,
-                    "w" : 27,
-                    "h" : 38
+                    "x" : 129,
+                    "y" : 1063,
+                    "w" : 80,
+                    "h" : 80
                     }
             },
             "Generators" : {
@@ -120,7 +120,7 @@ replacement = {
             "2560x1440" : {
                 "w": 136,
                 "h": 94,
-                "x" : 228,
+                "x" : 132,
                 "y" : 1058,
             },
         }
@@ -168,7 +168,8 @@ replacement = {
 
 def exchange_from_file(player_type="player_type"):
     global replacement
-    config["player"] = 1
+    config["player"] = 1 if player_type == "Survivor" else 2
+    print(config["player"])
     save_dict = deepcopy(config)
     temp = config["regions"]
     config["regions"] = replacement[player_type]

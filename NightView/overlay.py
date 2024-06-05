@@ -48,7 +48,8 @@ class Overlay(QWidget):
                         label.setAlignment(Qt.AlignLeft | Qt.AlignBottom)
 
                         self.regions[region][str(i)] = {"Rect": rect, "Label": label}
-                        if region == "Survivors": break
+                        if config["player"] == 1 and "S" in region:
+                            break
                 else:
                     # Red Outline
                     rect = QLabel("", self)
@@ -106,7 +107,7 @@ class Overlay(QWidget):
                         100,
                         20
                     )
-                    break
+                    if config["player"] == 1 and "S" in region: break
             else:
                 self.regions[region]["Rect"].setGeometry(
                     scaled_rect["x"] - 1,
@@ -130,7 +131,7 @@ class Overlay(QWidget):
         if value is False:
             self.corners.hide()
             for region in self.regions:
-                if type(region) is list:
+                if '0' in self.regions[region]:
                     for i in range(0, 4):
                         self.regions[region][str(i)]["Rect"].hide()
                         self.regions[region][str(i)]["Label"].setText("")
@@ -148,7 +149,8 @@ class Overlay(QWidget):
                     current.show()
                     self.regions[region][str(i)]["Label"].show()
                     self.regions[region][str(i)]["Label"].setText(region + "_" + str(i))
-                    if region == "Survivors" : break
+                    if config["player"] == 1 and "S" in region:
+                        break
             else:
                 self.regions[region]["Rect"].show()
                 self.regions[region]["Label"].show()

@@ -29,7 +29,7 @@ class ComputerVision():
         scale = 1
         monitor_rect = {}
         with mss.mss() as sct:
-            monitor_rect = sct.monitors[1]  # Use the 1st monitor
+            monitor_rect = sct.monitors[2]  # Use the 1st monitor
 
         # Following If is a default of 2560x1440, no rescaling/ refitting done 5/19
         if self.detection_rect == monitor_rect:
@@ -124,14 +124,14 @@ class ComputerVision():
 
         for region in regionNames:
             rect = config["regions"][region]["2560x1440"]
-            #print(region)
             if '0' in rect:
                 for i in range(0, 4):
                     top = min(top, rect[str(i)]["y"])
                     bottom = max(bottom, rect[str(i)]["y"] + rect["h"])
                     left = min(left, rect[str(i)]["x"])
                     right = max(right, rect[str(i)]["x"] + rect["w"])
-                    if region == "Survivors":
+                    if config["player"] == 1:
+                        print(region)
                         break
             else:
                 top = min(top, rect["y"])

@@ -58,14 +58,16 @@ class GUI(QMainWindow):
         while True:
             cv_updated = self.computer_vision.update()
             if cv_updated:
+
                 self.update_signal.emit()
             await asyncio.sleep(1 / 1000)
 
     def update_graphics(self):
-        if self.computer_vision.resolution_changed:  # Handles Res Change
+        if self.computer_vision.resolution_changed or self.computer_vision.regions_changed:  # Handles Res Change
             self.overlay.close()  # restart
             self.overlay = Overlay(self.computer_vision)  # Reinit
             self.computer_vision.resolution_changed = False
+            self.computer_vision.regions_changed = False
 
         self.mainTab.update_current_frame()  # Update Main Tab
         self.overlay.update()  # Update the Overlay

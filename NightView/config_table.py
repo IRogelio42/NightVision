@@ -168,6 +168,7 @@ replacement = {
 
 def exchange_from_file(player_type="player_type"):
     global replacement
+    config["player"] = 1
     save_dict = deepcopy(config)
     temp = config["regions"]
     config["regions"] = replacement[player_type]

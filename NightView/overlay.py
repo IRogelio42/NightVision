@@ -35,7 +35,7 @@ class Overlay(QWidget):
             # The Red Detection Regions, Red Outline + Title
             self.regions = {}
             for region in config["regions"]:  # Get Regions from config list in config_handler
-                if type(region) is list:
+                if '0' in config["regions"][region]["2560x1440"]:
                     self.regions[region] = {}
                     for i in range(0, 4):
                         # Red Outline
@@ -48,6 +48,7 @@ class Overlay(QWidget):
                         label.setAlignment(Qt.AlignLeft | Qt.AlignBottom)
 
                         self.regions[region][str(i)] = {"Rect": rect, "Label": label}
+                        if region == "Survivors": break
                 else:
                     # Red Outline
                     rect = QLabel("", self)
@@ -85,13 +86,13 @@ class Overlay(QWidget):
             self.cv.detection_rect["height"]
         )
 
-        # Setting rectangles for regions/Detectables
+        # Setting rectangles for regions/Detectables self.regions[region][str(i)]
         for region in config["regions"]:
             scaled_rect = config["regions"][region]["2560x1440"]  # Get Aspect Ratio, Created in CV(?)
             tempwidth = scaled_rect["w"] + 2
             tempheight = scaled_rect["h"] + 2
 
-            if type(region) is list:
+            if '0' in scaled_rect:
                 for i in range(0, 4):
                     self.regions[region][str(i)]["Rect"].setGeometry(
                         scaled_rect[str(i)]["x"] - 1,
@@ -105,6 +106,7 @@ class Overlay(QWidget):
                         100,
                         20
                     )
+                    break
             else:
                 self.regions[region]["Rect"].setGeometry(
                     scaled_rect["x"] - 1,
@@ -140,12 +142,13 @@ class Overlay(QWidget):
 
     def update_regions(self):
         for region in self.regions:
-            if type(region) is list:
+            if '0' in self.regions[region]:
                 for i in range(0, 4):
                     current = self.regions[region][str(i)]["Rect"]
                     current.show()
                     self.regions[region][str(i)]["Label"].show()
                     self.regions[region][str(i)]["Label"].setText(region + "_" + str(i))
+                    if region == "Survivors" : break
             else:
                 self.regions[region]["Rect"].show()
                 self.regions[region]["Label"].show()

@@ -22,6 +22,7 @@ class ComputerVision():
         self.detection_rect = {}
         self.resolution_scaling_factor = 1
         self.resolution_changed = False
+        self.regions_changed = False
         self.detect_resolution()
 
     def detect_resolution(self):
@@ -63,10 +64,11 @@ class ComputerVision():
 
         self.resolution_changed = self.detect_resolution()
 
-        for r in config["regions"]:
-           config["regions"][r]["Matches"] = []
-           for d in config["detectables"][r]:
-               config["detectables"][r][d]["Count"] = 0
+        if len(config["regions"]) == 1: #temp override
+            for r in config["regions"]:
+               config["regions"][r]["Matches"] = []
+               for d in config["detectables"][r]:
+                   config["detectables"][r][d]["Count"] = 0
 
         self.update_detections()
 
@@ -78,6 +80,7 @@ class ComputerVision():
                     else:
                         var="Killer"
                     exchange_from_file(var)
+                    self.regions_changed = True
 
         #for r in config["regions"]:
         #    for d in config["detectables"][r]:
@@ -120,12 +123,15 @@ class ComputerVision():
 
         for region in regionNames:
             rect = config["regions"][region]["2560x1440"]
-            if type(rect) is list:
+
+            if '0' in rect:
                 for i in range(0, 4):
                     top = min(top, rect[str(i)]["y"])
                     bottom = max(bottom, rect[str(i)]["y"] + rect["h"])
                     left = min(left, rect[str(i)]["x"])
                     right = max(right, rect[str(i)]["x"] + rect["w"])
+                    if region == "Survivors":
+                        break
             else:
                 print(region)
                 print(rect)

@@ -52,7 +52,7 @@ replacement = {
     "Killer" : {
             "Survivors": {
                 "2560x1440" : {
-                    "w": 347,
+                    "w": 143,
                     "h": 118,
                     "0": {
                         "x" : 100,
@@ -92,7 +92,7 @@ replacement = {
     "Survivor" : {
             "Survivors": {
                 "2560x1440": {
-                    "w": 347,
+                    "w": 143,
                     "h": 118,
                     "0": { # self
                         "x": 100,

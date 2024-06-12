@@ -14,6 +14,10 @@ class ComputerVision():
         self.detection_ping = 0
 
         self.prompt_detectables = ["player_type"]
+        if config["player"] :
+            self.prompt_detectables = []
+            for r in config["regions"]:
+                self.prompt_detectables.append(r)
         self.filters = {}
         #for d in self.prompt_detectables:
             #self.filters[d] = self.prompt_filter
@@ -82,10 +86,11 @@ class ComputerVision():
                     exchange_from_file(var)
                     print(var + " identified.")
                     self.regions_changed = True
-
-        #for r in config["regions"]:
-        #    for d in config["detectables"][r]:
-        #        if config["detectables"][r][d]["Count"]:
+        #else:
+        #    for r in config["regions"]:
+        #        for d in config["detectables"][r]:
+        #            if config["detectables"][r][d]["Count"]:
+        #                if config["regions"][r][]
 
         # frame_delta_points = 0
         # for d in config["detectables"]:

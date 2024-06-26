@@ -33,7 +33,7 @@ class ComputerVision():
         scale = 1
         monitor_rect = {}
         with mss.mss() as sct:
-            monitor_rect = sct.monitors[2]  # Use the 1st monitor
+            monitor_rect = sct.monitors[1]  # Use the 1st monitor
 
         # Following If is a default of 2560x1440, no rescaling/ refitting done 5/19
         if self.detection_rect == monitor_rect:
@@ -55,7 +55,7 @@ class ComputerVision():
             config["regions"][region]["Matches"] = []  # Pings a Match
 
             for item in config["detectables"][region]:
-                self.load_and_scale_template(config["detectables"][region][item])  # Scale template image
+                self.load_and_scale_template(region, config["detectables"][region][item])  # Scale template image
                 if item in self.filters:
                     config["detectables"][region][item]["template"] = self.filters[item](config["detectables"][region][item]["template"])
 
@@ -77,8 +77,8 @@ class ComputerVision():
         self.update_detections()
 
         if len(config["regions"]) == 1:
-            for d in config["detectables"][r]:
-                if config["detectables"][r][d]["Count"]:
+            for det in config["detectables"][r]:
+                if config["detectables"][r][det]["Count"]:
                     if config["regions"][r]["Matches"][0] == "player_typeA":
                         var="Survivor"
                     else:
@@ -86,11 +86,17 @@ class ComputerVision():
                     exchange_from_file(var)
                     print(var + " identified.")
                     self.regions_changed = True
-        #else:
-        #    for r in config["regions"]:
-        #        for d in config["detectables"][r]:
-        #            if config["detectables"][r][d]["Count"]:
-        #                if config["regions"][r][]
+        else:
+            for region in config["regions"]:
+                for det in config["detectables"][region]:
+                    if config["detectables"][region][det]["Count"]:
+                        if config["regions"][region]["Matches"]:
+                            # Here we read what matches we have for a certain stat
+                            # we should hold a dict per match and write to this dict
+                            # updating each stat as we go
+                            # at end of each game, we should send dict to a file
+                            file = open("tempGameFile.txt", "a")
+                            file.write(region + ": " + )
 
         # frame_delta_points = 0
         # for d in config["detectables"]:
@@ -118,6 +124,9 @@ class ComputerVision():
         if "player_type" == regions[0] and len(regions) == 1: # State 0
             self.match_detectables_on_region(regions[0], config["detectables"][regions[0]])
             return
+        else:
+            for region in regions:
+                self.match_detectables_on_region(region, config["detectables"][region])
     
     def grab_AOI(self, regionNames):
         top = self.detection_rect["height"]
@@ -230,8 +239,8 @@ class ComputerVision():
         return self.frame[top:bottom, left:right].copy()
 
     # Scale Detection Images to Appropriate Resolution necessary
-    def load_and_scale_template(self, item):
-        path = os.path.join(os.path.abspath("."), "templates", item["filename"])
+    def load_and_scale_template(self, region, item):
+        path = os.path.join(os.path.abspath("."), "templates", region, item["filename"])
         # cv.imread(path) -> returns image at path location as variable
         base_template = cv.imread(path)
 

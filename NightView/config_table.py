@@ -150,18 +150,25 @@ replacement = {
     },
     "detectable" : {
             # Survivor detectables apply to both,
-            "Injured": {"Filename": "injured.png", "Threshold": .8, },
-            "Down": {"Filename": "down.png", "Threshold": .8, },
-            "Dead": {"Filename": "dead.png", "Threshold": .8, },
-            "Mori": {"Filename": "mori.png", "Threshold": .8, },
-            "Hook_Stage0": {"Filename": "HS0.png", "Threshold": .8, },
-            "Hook_Stage1": {"Filename": "HS1.png", "Threshold": .8, },
-            "Hook_Stage2": {"Filename": "HS2.png", "Threshold": .8, },
+            "Survivor" : {
+                "Injured": {"Filename": "injured.png", "Threshold": .8, },
+                "Down": {"Filename": "down.png", "Threshold": .8, },
+                "Dead": {"Filename": "dead.png", "Threshold": .8, },
+                "Mori": {"Filename": "mori.png", "Threshold": .8, },
+                "Hook_Stage0": {"Filename": "HS0.png", "Threshold": .8, },
+                "Hook_Stage1": {"Filename": "HS1.png", "Threshold": .8, },
+                "Hook_Stage2": {"Filename": "HS2.png", "Threshold": .8, },
+            },
             #Need to decide how to track stages, whether hold all images as above
             #or hold single image and save previous image to identify transition as below
-            "Killer_Hooks": {"Filename": "KHS.png", "Threshold": .8,},
-            # Similar problem for generator detection
-            "Generator_Count": {"Filename": "Generators.png", "Threshold": .8},
+            "Killer" : {
+                #Since neither of these regress, update filename to next state
+                #ie KHS1-12(?) and Gens5-0
+                "Killer_Hooks": {"Filename": "KHS1.png", "Threshold": .8,},
+                # Similar problem for generator detection
+                "Generator_Count": {"Filename": "Generators.png", "Threshold": .8},
+            },
+
     }
 }
 #4/30 Need To Write  Afuntion that upon detection of player rewrites config[regions] in order to streamline code

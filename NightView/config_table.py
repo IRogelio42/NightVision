@@ -57,6 +57,7 @@ replacement = {
                     "0": {
                         "x" : 100,
                         "y" : 545,
+
                     },
                     "1": {
                         "x" : 100,
@@ -166,7 +167,7 @@ replacement = {
                 #ie KHS1-12(?) and Gens5-0
                 "Killer_Hooks": {"Filename": "KHS1.png", "Threshold": .8,},
                 # Similar problem for generator detection
-                "Generator_Count": {"Filename": "Generators.png", "Threshold": .8},
+                "Generator_Count": {"Filename": "5gen.png", "Threshold": .8},
             },
 
     }

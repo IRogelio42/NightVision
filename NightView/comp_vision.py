@@ -3,6 +3,7 @@ import time
 import mss
 import numpy as np
 import cv2 as cv
+from current_game import Game
 
 from config_table import config, aspect_ratios, exchange_from_file
 

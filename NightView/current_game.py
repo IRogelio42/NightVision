@@ -5,22 +5,19 @@ class Game():
         self.player = p_type
         self.game = {
             "Killer" : "",
-            "Survivor_1" : {"Name" : "",},
-            "Survivor_2" : {"Name" : "",},
-            "Survivor_3" : {"Name" : "",},
-            "Survivor_4" : {"Name" : "",},
-            "Gens" : 0,
+            "Survivor_1" : {"Name" : "", "Hits" : 0, "CurrentHS" : 0, "Character" : "", "Health" : ""},
+            "Gens" : 5,
             "Win" : ""
         }
         
         if lower(self.player) is "killer":
             self.game["Hooks"] = 0
-            for i in range(1, 4):
-                self.game["Survivor_" + i] = {}
-                self.game["Survivor_" + i]["Name"] = ""
-                self.game["Survivor_" + i]["Hits"] = 0
-        else:
+            self.game["Survivor_1"].pop("CurrentHS")
+            for i in range(2, 4):
+                self.game["Survivor_" + i] = self.game["Survivor_1"]
+        elif lower(self.player) is "survivor":
             self.game["Hooked"] = 0
+            self.game["Survivor_1_Self"] = self.game.pop("Survivor_1")
 
     def game_finish(self):
         # Game winning logic
